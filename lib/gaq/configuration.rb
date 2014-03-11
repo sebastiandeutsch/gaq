@@ -5,7 +5,7 @@ module Gaq
   class Configuration
     attr_reader :rails_config, :variables
 
-    RAILS_CONFIG_ACCESSORS = [:anonymize_ip, :render_ga_js, :support_display_ads]
+    RAILS_CONFIG_ACCESSORS = [:anonymize_ip, :render_ga_js]
     attr_accessor(*RAILS_CONFIG_ACCESSORS)
 
     VariableException = Class.new(RuntimeError)
@@ -97,10 +97,14 @@ module Gaq
       end
     end
 
+    def support_display_ads
+      @rails_config.support_display_ads
+    end
+
     class TrackerConfig
       attr_reader :rails_config, :tracker_name
 
-      RAILS_CONFIG_ACCESSORS = [:web_property_id, :track_pageview, :support_display_ads]
+      RAILS_CONFIG_ACCESSORS = [:web_property_id, :track_pageview]
       attr_accessor(*RAILS_CONFIG_ACCESSORS)
       alias_method :track_pageview?, :track_pageview
 
@@ -108,7 +112,6 @@ module Gaq
         @tracker_name = tracker_name
 
         @track_pageview = true
-        @support_display_ads = false
         @rails_config = RailsConfig.new(self)
 
         @web_property_id = 'UA-XUNSET-S'
@@ -131,6 +134,8 @@ module Gaq
       def_delegators :@default_tracker_rails_config,
         *TrackerConfig::RAILS_CONFIG_ACCESSORS.map { |m| "#{m}=" }
 
+      attr_accessor :support_display_ads
+
       def initialize(config, default_tracker_rails_config)
         @config = config
 
@@ -138,8 +143,8 @@ module Gaq
 
         @anonymize_ip = false
         @render_ga_js = :production
+        @support_display_ads = false
       end
-
 
       def additional_trackers=(array)
         raise "you can only do this once" if @trackers_set
